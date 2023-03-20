@@ -1,0 +1,41 @@
+# Name that will be referenced do much more with it programmatically  
+name: deploy 
+on:
+  # The event respository_dispatch means on every API trigger, 
+  # this whole file gets executed
+  repository_dispatch: 
+    types: [deploy-service]
+# There can have multiple jobs, but currently, 
+# this tutorial will only be working on one
+jobs:
+  deploy:
+    name: Deploy
+    # The name of the base image where all whole codes in YAML get executed
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using password
+      # appleboy/ssh-action@master it is an open-sourced package 
+      # that logs into a server via ssh and executes the script
+      uses: appleboy/ssh-action@master
+      # These are generally the variable that the package needs 
+      # to log into the server and execute the script
+      with:
+       # The secrets are the variables from 
+       # https://docs.github.com/en/actions/security-guides/encrypted-secrets
+
+       # Your host of the server stored on github secrets with same name HOST
+        host: ${{ secrets.HOST }} 
+        # Your sever's username to login 
+        # which is stored on github secrets with name USERNAME
+        username: ${{ secrets.USERNAME }} 
+        # Your server's password to login 
+        # which is stored on github secrets with name PASSWORD        
+        password: ${{ secrets.PASSWORD }} 
+        # Your server's port to login 
+        # which is stored on github secrets with name PORT
+        port: ${{ secrets.PORT }}  
+        # deploy-app.sh can be anything like you can pull code from the GitHub
+        # and restart your webserver or queues anything
+        # Make sure you have cloned repo on your server  
+        # You can run many script as you like
+        script: git pull origin {{ github.event.client_payload.branch }}
